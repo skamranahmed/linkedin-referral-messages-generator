@@ -1,6 +1,6 @@
 ## LinkedIn Referral Messages Generator
 ### Demo
-[Demo][demo-gif]](https://github.com/skamranahmed/linkedin-referral-messages-generator/raw/main/demo.gif)
+[Demo][demo-gif](https://github.com/skamranahmed/linkedin-referral-messages-generator/raw/main/demo.gif)
 
 ### How to run
 Clone the repo using ```git clone https://github.com/skamranahmed/linkedin-referral-messages-generator```
