@@ -7,11 +7,17 @@ from flask import Flask, render_template, request, send_from_directory, redirect
 from werkzeug.utils import secure_filename
 
 
+ALLOWED_EXTENSIONS = {'csv'}
 UPLOADED_FILES = os.path.join('static', 'uploaded-files')
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOADED_FILES
 app.secret_key = os.getenv('SECRET_KEY')
+
+# Check for valid file extensions
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -26,21 +32,22 @@ def messages():
     uploaded_file = request.files['file']
 
     if uploaded_file.filename !='':
-        #  avoid any security issues regarding file name
-        uploaded_file_name = secure_filename(uploaded_file.filename)
-        uploaded_file_name = f"{candidate_name}-{uuid.uuid4()}-{uploaded_file_name}"
-        uploaded_file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file_name)
+        if allowed_file(uploaded_file.filename):
+            #  avoid any security issues regarding file name
+            uploaded_file_name = secure_filename(uploaded_file.filename)
+            uploaded_file_name = f"{candidate_name}-{uuid.uuid4()}-{uploaded_file_name}"
+            uploaded_file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file_name)
 
-        #  saving the uploaded image in the static/uploaded-images-folder
-        uploaded_file.save(uploaded_file_path)
+            #  saving the uploaded image in the static/uploaded-images-folder
+            uploaded_file.save(uploaded_file_path)
 
-        #  process the uploaded csv file
-        generated_file_name = generate_messages(file_path = uploaded_file_path, candidate_name = candidate_name, resume_link = resume_link)
-        return redirect(url_for('get_file', file_name = generated_file_name))
+            #  process the uploaded csv file
+            generated_file_name = generate_messages(file_path = uploaded_file_path, candidate_name = candidate_name, resume_link = resume_link)
+            return redirect(url_for('get_file', file_name = generated_file_name))
 
-    # if a non-csv file is uploaded
-    else:
-        flash("Not a csv file")
+        # if a non-csv file is uploaded
+        else:
+            flash("Not a csv file")
     return redirect(url_for('index'))
 
 
